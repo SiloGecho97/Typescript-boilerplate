@@ -1,0 +1,14 @@
+version: '3.3'
+
+services:
+  node-app:
+    container_name: temp-prod
+    command: yarn start
+    build:
+      args:
+        NODE_VERSION: ${NODE_VERSION}
+        DOCKER_HUB_REMOTE_REGISTRY: ${DOCKER_HUB_REMOTE_REGISTRY}
+        NPM_USER: ${NPM_USER}
+        NPM_KEY: ${NPM_KEY}
+        NPM_DOMAIN: ${NPM_DOMAIN}
+        NODE_ENV: production

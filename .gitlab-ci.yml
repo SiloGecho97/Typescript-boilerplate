@@ -1,0 +1,52 @@
+
+variables:
+  NODE_VERSION: '16.13.0'
+
+populate_yarn_cache:
+  extends: .node_populate_yarn_cache
+
+lint:
+  extends: .node_lint
+  script:
+    - yarn lint
+    - yarn prettier
+
+unittest:
+  extends: .node_unittest
+     
+license:
+  extends: .node_license_check
+
+build:
+  extends: .node_build
+
+release:
+  extends: .node_release
+
+.publish:
+  extends: .node_docker_publish
+  needs: [build]
+  variables:
+    IMAGE_REPO: temp-safe-server
+    DOCKER_FILE: ./Dockerfile
+
+publish_merge_request:
+  extends: .publish
+  variables:
+    IMAGE_TAG: merge-request_${CI_COMMIT_REF_SLUG}
+    RELEASE: merge-request_${CI_COMMIT_REF_SLUG}.${CI_COMMIT_SHORT_SHA}
+    # disable, when the image will actually be used
+    ADDITIONAL_ARGS: '--no-push'
+  rules:
+    - if: $CI_MERGE_REQUEST_IID
+
+publish_release:
+  extends: .publish
+  variables:
+    IMAGE_TAG: ${CI_COMMIT_TAG}
+    RELEASE: ${CI_COMMIT_TAG}
+    # disable, when the image will actually be used
+    ADDITIONAL_ARGS: '--no-push'
+  rules:
+    - if: $CI_COMMIT_TAG
+  
